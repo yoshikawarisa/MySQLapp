@@ -40,6 +40,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
      }
  }
 
+ if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $delete_comment = $_POST["delete_comment"];
+    $sql = "DELETE FROM comments WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $params = array('delete_comment' => $delete_comment);
+    $stmt->execute($params);
+    header("Location:show.php?no=$postNo"); // リロード時の再投稿防止
+    exit();
+} 
+
  // コメント一覧機能
 $commentDetails = [];
 
@@ -66,14 +76,6 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-
-    <script>
-       // フォーム送信時の確認ダイアログ
-       function confirmSubmit() {
-           // confirm関数で「OK」が押されたらtrue、それ以外はfalseを返す
-           return confirm('本当にコメントしますか？');
-       }
-    </script>
 </head>
 
 
@@ -97,10 +99,23 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         while ($index < count($commentDetails)) {
             $comment = $commentDetails[$index];
             echo "<p>".$comment['commentText']."</p>";
+            echo '<form action="show.php?no=<?php echo $postNo; ?>" method="post">';
+            echo '<label for="delete_comment"></label>';
+            echo '<input type="hidden" name="delete_comment" value="<?= $comment["id"] ?>">';
+            echo '<input type="submit" value="削除">';
+            echo '</form>';
             $index++;
         }
     }
     ?>
-
 </body>
+
+<script>
+       // フォーム送信時の確認ダイアログ
+       function confirmSubmit() {
+           // confirm関数で「OK」が押されたらtrue、それ以外はfalseを返す
+           return confirm('本当にコメントしますか？');
+       }
+    </script>
+
 </html>

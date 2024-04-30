@@ -44,15 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Laravel News</title>
-
-   <script>
-       // フォーム送信時の確認ダイアログ
-       function confirmSubmit() {
-           // confirm関数で「OK」が押されたらtrue、それ以外はfalseを返す
-           return confirm('本当に投稿しますか？');
-       }
-    </script>
 </head>
+
 <body>
     <h1>Laravel News</h1>
     <form action="index.php" method="post" onsubmit="return confirmSubmit();">
@@ -75,7 +68,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             echo "<a href=show.php?no={$row['no']}>詳細画面へ</a><br>";
         endforeach;
     ?>
-
-
 </body>
+
+<script>
+       // フォーム送信時の確認ダイアログ
+       function confirmSubmit() {
+           // confirm関数で「OK」が押されたらtrue、それ以外はfalseを返す
+           return confirm('本当に投稿しますか？');
+       }
+    </script>
 </html>
