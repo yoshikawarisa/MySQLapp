@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
     }
-    if(isset($_POST['delete_comment_id'])){
+    if(isset($_POST['delete_comment'])){
 
         $delete_comment = $_POST["delete_comment"];
         $sql = "DELETE FROM comments WHERE id = :id";
@@ -102,7 +102,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         while ($index < count($commentDetails)) {
             $comment = $commentDetails[$index];
             echo "<p>".$comment['commentText']."</p>";
-            echo '<form action="show.php?no=<?php echo $postNo; ?>" method="post">';
+            echo '<form action="show.php?no='.$postNo.'" method="post">';
             echo '<label for="delete_comment"></label>';
             echo '<input type="hidden" name="delete_comment" value="'.$comment["id"].'">';
             echo '<input type="submit" value="削除">';
