@@ -19,36 +19,39 @@ if($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {  
-    $commentText = $_POST["commentText"];
-    $errors = []; // エラーメッセージを格納する配列
-  
-     if (empty(trim($commentText))) { $errors[] = "コメントを入力してください。"; } // コメントが空白の場合
-     if (strlen($commentText) > 50) { $errors[] = "コメントは50文字以内で入力してください。"; } // コメントが50文字以上の場合
-     if (empty($errors)) {
-        $sql = "INSERT INTO comments (contents_no, commentText) VALUES (:post_No, :commentText)";
+
+    if (isset($_POST["commentText"])){
+        $commentText = $_POST["commentText"];
+        $errors = []; // エラーメッセージを格納する配列
+    
+        if (empty(trim($commentText))) { $errors[] = "コメントを入力してください。"; } // コメントが空白の場合
+        if (strlen($commentText) > 50) { $errors[] = "コメントは50文字以内で入力してください。"; } // コメントが50文字以上の場合
+        if (empty($errors)) {
+            $sql = "INSERT INTO comments (contents_no, commentText) VALUES (:post_No, :commentText)";
+            $stmt = $pdo->prepare($sql);
+            $params = array(':post_No' => $postNo, ':commentText' => $commentText);
+            $stmt->execute($params);
+            header("Location:show.php?no=$postNo"); // リロード時の再投稿防止
+            exit();
+        } else {
+            $error = current($errors); // 配列の最初の要素を取得
+            while ($error !== false) { // 現在の要素がfalseでない間ループ
+                echo "<p style='color: red;'>{$error}</p>";
+                $error = next($errors); // 次の要素に移動
+            }
+        }
+    }
+    if(isset($_POST['delete_comment_id'])){
+
+        $delete_comment = $_POST["delete_comment"];
+        $sql = "DELETE FROM comments WHERE id = :id";
         $stmt = $pdo->prepare($sql);
-        $params = array(':post_No' => $postNo, ':commentText' => $commentText);
+        $params = array(':id' => $delete_comment);
         $stmt->execute($params);
         header("Location:show.php?no=$postNo"); // リロード時の再投稿防止
         exit();
-     } else {
-         $error = current($errors); // 配列の最初の要素を取得
-         while ($error !== false) { // 現在の要素がfalseでない間ループ
-             echo "<p style='color: red;'>{$error}</p>";
-             $error = next($errors); // 次の要素に移動
-         }
-     }
- }
-
- if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $delete_comment = $_POST["delete_comment"];
-    $sql = "DELETE FROM comments WHERE id = :id";
-    $stmt = $pdo->prepare($sql);
-    $params = array('delete_comment' => $delete_comment);
-    $stmt->execute($params);
-    header("Location:show.php?no=$postNo"); // リロード時の再投稿防止
-    exit();
-} 
+    }
+}
 
  // コメント一覧機能
 $commentDetails = [];
@@ -101,7 +104,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             echo "<p>".$comment['commentText']."</p>";
             echo '<form action="show.php?no=<?php echo $postNo; ?>" method="post">';
             echo '<label for="delete_comment"></label>';
-            echo '<input type="hidden" name="delete_comment" value="<?= $comment["id"] ?>">';
+            echo '<input type="hidden" name="delete_comment" value="'.$comment["id"].'">';
             echo '<input type="submit" value="削除">';
             echo '</form>';
             $index++;
